@@ -42,11 +42,23 @@ const getRestaurantDetails = async (req, res, next) => {
     }
 };
 
-// ¡La función updateRestaurantMenu se elimina!
-// Se manejará en el nuevo controlador de menús.
+const updateSettings = async (req, res, next) => {
+    try {
+        const { id } = req.params; // ID del restaurante
+        const userId = req.user.id; // ID del usuario (del token)
+        const settings = req.body; // { whatsapp_number: "..." }
 
+        const updatedRestaurant = await restaurantService.updateRestaurantSettings(id, userId, settings);
+        res.status(200).json(updatedRestaurant);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Exporta la nueva función
 module.exports = {
     createRestaurant,
     getMyRestaurants,
     getRestaurantDetails,
+    updateSettings, // <-- Añade esto
 };

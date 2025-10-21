@@ -51,10 +51,40 @@ const getRestaurantById = async (restaurantId) => {
     }
     return result.rows[0];
 };
+/**
+ * Actualiza los ajustes de un restaurante (ej. WhatsApp).
+ * @param {string} restaurantId - El ID del restaurante a actualizar.
+ * @param {string} userId - El ID del usuario para verificar propiedad.
+ * @param {object} settings - Objeto con los campos a actualizar (ej. { whatsapp_number })
+ * @returns {Promise<object>} El restaurante actualizado.
+ */
+const updateRestaurantSettings = async (restaurantId, userId, settings) => {
+    const { whatsapp_number } = settings; // Por ahora solo actualizamos esto
 
+    const query = `
+        UPDATE restaurants 
+        SET whatsapp_number = $1 
+        WHERE id = $2 AND user_id = $3 
+        RETURNING *
+    `;
+    const values = [whatsapp_number, restaurantId, userId];
+    
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+        // Esto pasa si el restaurante no existe O el usuario no es el dueño
+        const error = new Error('No se pudo actualizar el restaurante. No encontrado o sin permisos.');
+        error.status = 404; 
+        throw error;
+    }
+
+    return result.rows[0];
+};
+
+// Asegúrate de exportar la new function
 module.exports = {
     createRestaurant,
     getRestaurantsByUserId,
-    getRestaurantById, 
-    // La función updateMenuByUserId se elimina de aquí
+    getRestaurantById,
+    updateRestaurantSettings, // <-- Añade esto
 };

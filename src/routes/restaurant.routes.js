@@ -2,7 +2,7 @@
 const { Router } = require('express');
 const { body } = require('express-validator');
 const protect = require('../middlewares/auth.middleware');
-const { createRestaurant, getMyRestaurants, getRestaurantDetails } = require('../controllers/restaurant.controller');
+const { createRestaurant, getMyRestaurants, getRestaurantDetails,updateSettings } = require('../controllers/restaurant.controller');
 // Próximamente: const checkRestaurantOwnership = require('../middlewares/ownership.middleware');
 
 const router = Router();
@@ -23,6 +23,10 @@ router.get('/my-restaurants', getMyRestaurants);
 // Ruta para obtener los detalles de UN restaurante específico
 // Próximamente: router.get('/:id', checkRestaurantOwnership, getRestaurantDetails);
 router.get('/:id', getRestaurantDetails); 
+// Ruta para obtener los detalles de UN restaurante específico
+router.get('/:id', getRestaurantDetails); 
 
+// NUEVA RUTA: Para actualizar los ajustes del restaurante
+router.put('/:id/settings', updateSettings);
 // La ruta PUT /my-restaurant/menu se elimina
 module.exports = router;
