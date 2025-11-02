@@ -1,12 +1,6 @@
 // src/services/public.service.js
 const pool = require('../config/database');
 
-/**
- * Obtiene los datos de un restaurante y su menú activo
- * para la vista pública, usando el slug.
- * @param {string} slug - El slug del restaurante (ej. "cafe-litoral")
- * @returns {Promise<object>} Un objeto con los datos del restaurante y el JSON del menú.
- */
 const getPublicMenuBySlug = async (slug) => {
     const query = `
         SELECT 
@@ -14,6 +8,10 @@ const getPublicMenuBySlug = async (slug) => {
             r.name, 
             r.slug, 
             r.whatsapp_number,
+            r.address,          -- CAMBIO
+            r.phone_2,          -- CAMBIO
+            r.opening_hours,    -- CAMBIO
+            r.notes,            -- CAMBIO
             m.menu_data 
         FROM restaurants r
         LEFT JOIN menus m ON r.active_menu_id = m.id
@@ -30,9 +28,13 @@ const getPublicMenuBySlug = async (slug) => {
 
     const data = result.rows[0];
 
-    // Si el restaurante existe pero no tiene un menú activo o el menú está vacío
     if (!data.menu_data) {
-        data.menu_data = { categories: [] }; // Devuelve un menú vacío en lugar de null
+        data.menu_data = { categories: [] };
+    }
+    
+    // Asegurarnos de que opening_hours nunca sea null
+    if (!data.opening_hours) {
+        data.opening_hours = {};
     }
 
     return data;

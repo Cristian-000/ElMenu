@@ -59,20 +59,39 @@ const getRestaurantById = async (restaurantId) => {
  * @returns {Promise<object>} El restaurante actualizado.
  */
 const updateRestaurantSettings = async (restaurantId, userId, settings) => {
-    const { whatsapp_number } = settings; // Por ahora solo actualizamos esto
+    // Obtenemos los campos del body. Usamos '??' para default a null si no vienen.
+    const { 
+        whatsapp_number = null, 
+        address = null, 
+        phone_2 = null, 
+        opening_hours = {}, // Debe ser un objeto
+        notes = null 
+    } = settings;
 
     const query = `
         UPDATE restaurants 
-        SET whatsapp_number = $1 
-        WHERE id = $2 AND user_id = $3 
+        SET 
+            whatsapp_number = $1, 
+            address = $2, 
+            phone_2 = $3, 
+            opening_hours = $4,
+            notes = $5
+        WHERE id = $6 AND user_id = $7 
         RETURNING *
     `;
-    const values = [whatsapp_number, restaurantId, userId];
+    const values = [
+        whatsapp_number, 
+        address, 
+        phone_2, 
+        opening_hours, 
+        notes, 
+        restaurantId, 
+        userId
+    ];
     
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) {
-        // Esto pasa si el restaurante no existe O el usuario no es el dueño
         const error = new Error('No se pudo actualizar el restaurante. No encontrado o sin permisos.');
         error.status = 404; 
         throw error;
